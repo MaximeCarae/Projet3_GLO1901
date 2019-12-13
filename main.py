@@ -8,6 +8,8 @@ au jeu Quorridor, et affiche le résultat à l'écran
 
 import argparse # Pour les lignes de commande
 import api # On récupère le fichier api
+import quoridor # On récupère la classe quoridor
+import quoridorx # On récupère la classe quoridorx
 
 
 def analyser_commande():
@@ -46,4 +48,8 @@ if ARGS.automatique: # Si l'option -a est entrée on lance le mode automatique
 
 if ARGS.graphique: # Si l'option 2 -x est entrée lance le mode graphique
     a = 1# Lancement graphique
+
+DEBUT = api.débuter_partie(ARGS.idul) # On commence la partie
+PARTIE = quoridor.Quoridor(DEBUT[1]["joueurs"], DEBUT[1]["murs"]) 
+# On place la partie dans la classe Quoridor
 
