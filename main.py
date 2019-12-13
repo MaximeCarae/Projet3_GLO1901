@@ -53,3 +53,33 @@ DEBUT = api.débuter_partie(ARGS.idul) # On commence la partie
 PARTIE = quoridor.Quoridor(DEBUT[1]["joueurs"], DEBUT[1]["murs"]) 
 # On place la partie dans la classe Quoridor
 
+boucle = 1
+while boucle == 1:
+
+    print(str(PARTIE))
+    # On va récupérer le coup de l'utilisateur
+    TYPE_COUP = input("Entrez votre coup, (D, MH ou MV) : ") # Type de coup
+    x = input("Entrez votre valeur x : ") # Pos x
+    y = input("Entrez votre valeur y : ") # pos y
+
+    api.jouer_coup(DEBUT[0], TYPE_COUP, (x, y)) # Pour jouer notre coup
+    # sur le serveur
+    # On change les valeurs dans notre classe
+    x = int(x)
+    y = int(y)
+    if TYPE_COUP == "D":
+        PARTIE.déplacer_jeton(1, (x, y))
+    elif TYPE_COUP == "MH":
+        PARTIE.placer_mur(1, (x, y), "horizontal")
+    else:
+        PARTIE.placer_mur(1, (x, y), "vertical")
+
+    # On va récupérer le coup jouer par le serveur
+    liste = api.lister_parties(ARGS.idul)
+
+    for liste in liste:
+        if liste["id"] == DEBUT[0]:
+            PARTIE.joueur2["murs"] = liste["état"]["joueurs"][1]["murs"]
+            PARTIE.joueur2["pos"] = liste["état"]["joueurs"][1]["pos"]
+            PARTIE.horizontaux = liste["état"]["murs"]["horizontaux"]
+            PARTIE.verticaux = liste["état"]["murs"]["verticaux"]
