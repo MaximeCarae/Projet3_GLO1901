@@ -34,9 +34,19 @@ class QuoridorX(quoridor.Quoridor):
         turtle.addshape('bord', bord)
         turtle.addshape('mur', mur)
 
+        # On définie toutes nos turtles et on place leurs vitesses au max
+        joe = turtle.Turtle()
+        alex = turtle.Turtle()
+        robot = turtle.Turtle()
+        mure = turtle.Turtle()
+        joe.speed(0)
+        alex.speed(0)
+        robot.speed(0)
+        mure.speed(0)
+
+
         # On trace les bords du plateau
         # On va ce placer dans le coin inférieur droit du plateau
-        joe = turtle.Turtle()
         joe.penup()
         joe.backward(350)
         joe.left(90)
@@ -70,7 +80,6 @@ class QuoridorX(quoridor.Quoridor):
         # On place les pions
         
         # On définie le pion du joueur 1 en rouge
-        alex = turtle.Turtle()
         alex.shape('pion')
         alex.penup()
         alex.pencolor('red')
@@ -80,7 +89,6 @@ class QuoridorX(quoridor.Quoridor):
         alex.backward(280)
 
         # On définie le pion du joueur 2 en vert
-        robot = turtle.Turtle()
         robot.shape('pion')
         robot.penup()
         robot.pencolor('green')
@@ -105,8 +113,7 @@ class QuoridorX(quoridor.Quoridor):
 
         # On place ce place à l'origine pour les murs
 
-        # On définie le turtle pour les murs
-        mure = turtle.Turtle()
+        # On définie la couleur des murs et sa position d'origines
         mure.shape('mur')
         mure.penup()
         mure.pencolor('blue')
@@ -118,6 +125,7 @@ class QuoridorX(quoridor.Quoridor):
 
         # On place d'abord tous les murs verticaux un par un en lisant la liste
         for liste in self.etat["murs"]["verticaux"]:
+            print('Je suis dans la liste de V')
             x = (liste[0] - 1)*68 + 10
             y = (liste[1] - 1)*68 + 15
             mure.forward(x)
@@ -134,7 +142,7 @@ class QuoridorX(quoridor.Quoridor):
         mure.right(90)
 
         # On place les murs horizontaux
-        for liste in self.etat["murs"]["verticaux"]:
+        for liste in self.etat["murs"]["horizontaux"]:
             x = (liste[0] - 1)*68 + 30
             y = (liste[1] - 1)*68
             mure.backward(y)
@@ -147,10 +155,20 @@ class QuoridorX(quoridor.Quoridor):
             mure.right(90)
             mure.forward(y)
         
-        # On cache le turtle des murs dans les bords du plateau
+        # On cache le turtle des murs dans les bords du plateau en 
+        # le placant au bon endroit et en le colorant en noir
         mure.fillcolor('black')
         mure.pencolor('black')
         mure.left(90)
         mure.forward(10)
         mure.right(90)
         mure.backward(10)
+
+        # On demande à l'utilisateur son prochain coup
+        prochaincoup = fen.textinput("Vos coups", "Entrez votre coups:")
+        fen.clear()
+
+        return prochaincoup
+
+
+

@@ -11,7 +11,7 @@ def analyser_commande():
         [] -- [JSP]
     """
     parser = argparse.ArgumentParser(
-        description="Jeu Quoridor - phase 1"
+        description="Jeu Quoridor - phase 3"
     )
 
     # Nom du joueur
@@ -20,17 +20,12 @@ def analyser_commande():
     )
 
     parser.add_argument(
-        '-l', '--lister', action='store_true',
-        help="Lister les identifiants de vos 20 dernières parties."
-    )
-
-    parser.add_argument(
-        '-x' '--graphique', dest='fenetre', action = 'store_true',
-        help = 'Activer le mode graphique.'
-    )
-
-    parser.add_argument(
         '-a', '--automatique', dest='auto', action = 'store_true', 
+        help = 'Activer le mode automatique.'
+    )
+
+    parser.add_argument(
+        '-x', '--graphique', dest='fenetre', action = 'store_true',
         help = 'Activer le mode graphique.'
     )
 
@@ -120,7 +115,8 @@ class Partie:
 
     def afficher_partie(self):
         if self.fenetre:
-            return self.partie.afficher()
+            coup = self.partie.afficher()
+            print(coup)
         else:
             print(self.partie)
     
@@ -133,7 +129,4 @@ class Partie:
 if __name__ == "__main__":
     commande = analyser_commande()
     print(commande)
-    if commande.lister:
-        print(api.lister_parties(commande.idul))
-    else:
-        Partie(commande.idul, commande.auto, commande.fenetre)
+    Partie(commande.idul, commande.auto, commande.fenetre)
