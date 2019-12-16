@@ -18,12 +18,12 @@ def analyser_commande():
     parser.add_argument(
         "idul", metavar="idul", help="IDUL du joueur."
     )
-
+    # Mode auto
     parser.add_argument(
         '-a', '--automatique', dest='auto', action = 'store_true', 
         help = 'Activer le mode automatique.'
     )
-
+    # Mode graph
     parser.add_argument(
         '-x', '--graphique', dest='fenetre', action = 'store_true',
         help = 'Activer le mode graphique.'
@@ -115,8 +115,7 @@ class Partie:
 
     def afficher_partie(self):
         if self.fenetre:
-            coup = self.partie.afficher()
-            print(coup)
+            self.coup = self.partie.afficher()
         else:
             print(self.partie)
     
