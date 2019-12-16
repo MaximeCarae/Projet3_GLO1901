@@ -97,6 +97,7 @@ class Partie:
             print(coup)
             arg_coup = coup[0], coup[1]
             print("\n\n\n\n", arg_coup, "\n\n\n\n")
+            print(self.partie.etat)
                 
 
         # Update l'état de jeu pour rester synchronisé avec l'état de jeu du serveur 

@@ -1,3 +1,4 @@
+
 from quoridor import Quoridor
 
 
@@ -28,3 +29,9 @@ partie.placer_mur(1, [3, 6], "vertical")
 partie.placer_mur(1, (2, 1), "qmce")
 
 print(partie)
+
+partie.placer_mur_auto(1, partie.etat["joueurs"][1]["pos"], "horizontal")
+
+del(Quoridor)
+del(partie)
+
