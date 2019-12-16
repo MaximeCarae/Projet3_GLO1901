@@ -11,7 +11,8 @@ les méthodes pour jouer au jeu Quoridor en graphique
 import quoridor
 import turtle
 
-class Quoridorx(quoridor.Quoridor):
+
+class QuoridorX(quoridor.Quoridor):
     """
     Classe Quoridor, contient toutes les fonctions nécéssaires pour
     jouer au jeu Quoridor en mode graphique.
@@ -89,15 +90,15 @@ class Quoridorx(quoridor.Quoridor):
         robot.forward(290)
 
         # On place le pion du joueur 1 en fonction des coordonées
-        x = (5 - self.joueur1["pos"][0])*68 - 5
-        y = (self.joueur1["pos"][1] - 1)*68 + 10
+        x = (5 - self.etat["joueurs"][0]["pos"][0])*68 - 5
+        y = (self.etat["joueurs"][0]["pos"][1] - 1)*68 + 10
         alex.forward(y)
         alex.left(90)
         alex.forward(x)
 
         # On place le pion du joueur 2 en fonction des coordonées
-        x = (5 - self.joueur2["pos"][0])*68 - 5
-        y = (9 - self.joueur2["pos"][1])*68 +16
+        x = (5 - self.etat["joueurs"][1]["pos"][0])*68 - 5
+        y = (9 - self.etat["joueurs"][1]["pos"][1])*68 +16
         robot.backward(y)
         robot.right(90)
         robot.backward(x)
@@ -116,7 +117,7 @@ class Quoridorx(quoridor.Quoridor):
         mure.left(90)
 
         # On place d'abord tous les murs verticaux un par un en lisant la liste
-        for liste in self.verticaux:
+        for liste in self.etat["murs"]["verticaux"]:
             x = (liste[0] - 1)*68 + 10
             y = (liste[1] - 1)*68 + 15
             mure.forward(x)
@@ -133,7 +134,7 @@ class Quoridorx(quoridor.Quoridor):
         mure.right(90)
 
         # On place les murs horizontaux
-        for liste in self.horizontaux:
+        for liste in self.etat["murs"]["verticaux"]:
             x = (liste[0] - 1)*68 + 30
             y = (liste[1] - 1)*68
             mure.backward(y)

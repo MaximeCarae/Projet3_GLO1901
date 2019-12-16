@@ -1,147 +1,139 @@
-""" Main du programme Jeu Quorridor - Phase 1
-Écrit par Maxime Carpentier 111 095 058
-Le 11 novembre 2019
-Ce programme communique avec un serveur pour jouer
-au jeu Quorridor, et affiche le résultat à l'écran
-"""
-
-
-import argparse # Pour les lignes de commande
-import api # On récupère le fichier api
-import quoridor # On récupère la classe quoridor
-import quoridorx # On récupère la classe quoridorx
+import argparse
+import api
+import time
+import quoridorX
 
 
 def analyser_commande():
-    """ Fonction pour analyser la ligne de commande
-    Ne prend pas d'argument d'entrée et retourne les options
-    de la ligne de commande.
+    """[Parse la commande]
+    
+    Returns:
+        [] -- [JSP]
     """
-    # On crée l'analyseur de ligne de commande, avec un titre
-    parser = argparse.ArgumentParser(description="Jeu Quoridor - phase 3")
-    # Premier argument qui servira à activer le mode automatique
-    parser.add_argument(
-        '-a', '--automatique',
-        dest="automatique", action="store_true",
-        help="Activer le mode automatique."
-    )
-    # Second argument pour le mode graphique
-    parser.add_argument(
-        '-x', '--graphique',
-        dest="graphique", action="store_true",
-        help="Activer le mode graphique."
+    parser = argparse.ArgumentParser(
+        description="Jeu Quoridor - phase 1"
     )
 
-    # On crée une argument aui nous servira à récupérer l'idul
+    # Nom du joueur
     parser.add_argument(
-        'idul',
-        type=str, help='IDUL du joueur.'
+        "idul", metavar="idul", help="IDUL du joueur."
     )
 
-    return parser.parse_args() # On retourne les arguments
+    parser.add_argument(
+        '-l', '--lister', action='store_true',
+        help="Lister les identifiants de vos 20 dernières parties."
+    )
+
+    parser.add_argument(
+        '-x' '--graphique', dest='fenetre', action = 'store_true',
+        help = 'Activer le mode graphique.'
+    )
+
+    parser.add_argument(
+        '-a', '--automatique', dest='auto', action = 'store_true', 
+        help = 'Activer le mode graphique.'
+    )
+
+    return parser.parse_args()
 
 
-ARGS = analyser_commande() # Analyse la liste de commande
- 
-if ARGS.automatique: # Si l'option -a est entrée on lance le mode automatique
-    DEBUT = api.débuter_partie(ARGS.idul) # On commence la partie
-    PARTIE = quoridor.Quoridor(DEBUT[1]["joueurs"], DEBUT[1]["murs"]) 
-    # On place la partie dans la classe Quoridor
-    boucle = 1
-    while boucle == 1:
-        print(str(PARTIE))
-        liste = api.lister_parties(ARGS.idul)
-        # On joue notre coup
-        PARTIE.jouer_coup(1)
-        for liste in liste:
-            if liste["id"] == DEBUT[0]:
-                # On regarde si on a placé un mur ou si on c'est déplacé
-                if PARTIE.joueur1["murs"] == liste["état"]["joueurs"][0]["murs"]:
-                    # Si il y a un déplacement
-                    api.jouer_coup(DEBUT[0], "D", (PARTIE.joueur1["pos"][0],
-                                                   PARTIE.joueur1["pos"][0]))
-                elif PARTIE.horizontaux != liste["état"]["murs"]["horizontaux"]:
-                    # Si il y a un placement de mur horizontal
-                    api.jouer_coup(DEBUT[0], "MH", (liste["état"]["murs"]["horizontaux"][0]))
-                else:
-                    # Si il y a placement de mur vertical
-                    api.jouer_coup(DEBUT[0], "MV", (liste["état"]["murs"]["verticaux"][0]))
+# Classe qui encapsule une partie
 
-    # On va récupérer le coup jouer par le serveur
-    liste = api.lister_parties(ARGS.idul)
+class Partie:
+    def __init__(self, idul, auto, fenetre, api = api):
+        self.idul = idul
+        self.auto = auto
+        self.fenetre = fenetre
+        self.api = api
+        if not auto:
+            print("Utilisation: <Coup> <position x> <position y>\n" +
+                    "Types de coups:\nD: Déplacer le pion\nMV: Mur vertical\n" +
+                    "MH: Mur horizontal", sep=""
+                    )
+        self.jouer_partie()
+    
+    # Initialise une partie
+    def jouer_partie(self):
+        self.id, self.etat = api.débuter_partie(self.idul)
+        self.partie = quoridorX.QuoridorX(["auto", "serveur"])
+        self.jouer_tour()
+    
+    
+    def jouer_tour(self):
+        """[Effectue un tour de la partie de jeu]
 
-    for liste in liste:
-        if liste["id"] == DEBUT[0]:
-            PARTIE.joueur2["murs"] = liste["état"]["joueurs"][1]["murs"]
-            PARTIE.joueur2["pos"] = liste["état"]["joueurs"][1]["pos"]
-            PARTIE.horizontaux = liste["état"]["murs"]["horizontaux"]
-            PARTIE.verticaux = liste["état"]["murs"]["verticaux"]
+        Returns:
+            [None] -- []
+        """
+        # Afficher l'état de jeu (graphique ou ASCII, selon self.fenetre)
+        self.afficher_partie()
 
-if ARGS.graphique: # Si l'option 2 -x est entrée lance le mode graphique
-    DEBUT = api.débuter_partie(ARGS.idul) # On commence la partie
-    PARTIE = quoridorx.Quoridorx(DEBUT[1]["joueurs"], DEBUT[1]["murs"]) 
-    # On place la partie dans la classe Quoridor
-    boucle = 1
-    while boucle == 1:
-        # On affiche la partie
-        PARTIE.afficher()
-        # On va récupérer le coup de l'utilisateur
-        TYPE_COUP = input("Entrez votre coup, (D, MH ou MV) : ") # Type de coup
-        x = input("Entrez votre valeur x : ") # Pos x
-        y = input("Entrez votre valeur y : ") # pos y
+        # Fonction qui analyse les entrées de la ligne de commande
+        def parse_move():
+            string = input("Entrez votre coup ")
+            if string in ("q", "Q"):
+                return "q"
+            if string in ("a", "A"):
+                print("Utilisation: <Coup> <position x> <position y>\n" +
+                    "Types de coups:\nD: Déplacer le pion\nMV: Mur vertical\n" +
+                    "MH: Mur horizontal", sep=""
+                    )
+                return parse_move()
+            try:
+                string = string.split(" ")
+                return string[0], [int(string[1]), int(string[2])]
+            except:
+                print("Mauvaise entrée. Réessayez")
+                return parse_move()
 
-        api.jouer_coup(DEBUT[0], TYPE_COUP, (x, y)) # Pour jouer notre coup
-        # sur le serveur
-        # On change les valeurs dans notre classe
-        x = int(x)
-        y = int(y)
-        if TYPE_COUP == "D":
-            PARTIE.déplacer_jeton(1, (x, y))
-        elif TYPE_COUP == "MH":
-            PARTIE.placer_mur(1, (x, y), "horizontal")
+        # Si mode pas automatique: Analyser les entrées de la ligne de commande
+        if not self.auto:
+            arg_coup = parse_move()
+            if arg_coup == "q":
+                return None
+        # Si mode automatique: caller jouer_coup pour le joueur 1
         else:
-            PARTIE.placer_mur(1, (x, y), "vertical")
+            coup =  self.partie.jouer_coup(1)
+            arg_coup = coup[0], coup[1]
+            print("\n\n\n\n", arg_coup, "\n\n\n\n")
+                
 
-        # On va récupérer le coup jouer par le serveur
-        liste = api.lister_parties(ARGS.idul)
+        # Update l'état de jeu pour rester synchronisé avec l'état de jeu du serveur 
+        try:
+            self.partie.etat = self.api.jouer_coup(self.id, arg_coup[0], arg_coup[1])
+            # Le serveur renvoie les positions des personnages en listes et non tuples -> conversion en tuple
+            for i in range(2):
+                self.partie.etat["joueurs"][i]["pos"] = tuple(self.partie.etat["joueurs"][i]["pos"])
 
-        for liste in liste:
-            if liste["id"] == DEBUT[0]:
-                PARTIE.joueur2["murs"] = liste["état"]["joueurs"][1]["murs"]
-                PARTIE.joueur2["pos"] = liste["état"]["joueurs"][1]["pos"]
-                PARTIE.horizontaux = liste["état"]["murs"]["horizontaux"]
-                PARTIE.verticaux = liste["état"]["murs"]["verticaux"]
 
-DEBUT = api.débuter_partie(ARGS.idul) # On commence la partie
-PARTIE = quoridor.Quoridor(DEBUT[1]["joueurs"], DEBUT[1]["murs"]) 
-# On place la partie dans la classe Quoridor
-boucle = 1
-while boucle == 1:
+        # Exception si joueur est gagnant
+        except StopIteration as stop_iter:
+            print("Joueur gagnant: {}".format(stop_iter))
+            return None
 
-    print(str(PARTIE))
-    # On va récupérer le coup de l'utilisateur
-    TYPE_COUP = input("Entrez votre coup, (D, MH ou MV) : ") # Type de coup
-    x = input("Entrez votre valeur x : ") # Pos x
-    y = input("Entrez votre valeur y : ") # pos y
+        # Exception si ça plante
+        except RuntimeError as run_time_error:
+            print("Erreur: {}".format(run_time_error))
 
-    api.jouer_coup(DEBUT[0], TYPE_COUP, (x, y)) # Pour jouer notre coup
-    # sur le serveur
-    # On change les valeurs dans notre classe
-    x = int(x)
-    y = int(y)
-    if TYPE_COUP == "D":
-        PARTIE.déplacer_jeton(1, (x, y))
-    elif TYPE_COUP == "MH":
-        PARTIE.placer_mur(1, (x, y), "horizontal")
+        self.jouer_tour()
+
+
+    def afficher_partie(self):
+        if self.fenetre:
+            return self.partie.afficher()
+        else:
+            print(self.partie)
+    
+
+
+
+
+
+
+if __name__ == "__main__":
+    commande = analyser_commande()
+    print(commande)
+    if commande.lister:
+        print(api.lister_parties(commande.idul))
     else:
-        PARTIE.placer_mur(1, (x, y), "vertical")
-
-    # On va récupérer le coup jouer par le serveur
-    liste = api.lister_parties(ARGS.idul)
-
-    for liste in liste:
-        if liste["id"] == DEBUT[0]:
-            PARTIE.joueur2["murs"] = liste["état"]["joueurs"][1]["murs"]
-            PARTIE.joueur2["pos"] = liste["état"]["joueurs"][1]["pos"]
-            PARTIE.horizontaux = liste["état"]["murs"]["horizontaux"]
-            PARTIE.verticaux = liste["état"]["murs"]["verticaux"]
+        Partie(commande.idul, commande.auto, commande.fenetre)
