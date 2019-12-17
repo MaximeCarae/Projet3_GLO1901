@@ -39,10 +39,33 @@ class QuoridorX(quoridor.Quoridor):
         alex = turtle.Turtle()
         robot = turtle.Turtle()
         mure = turtle.Turtle()
+        punto = turtle.Turtle()
         joe.speed(0)
         alex.speed(0)
         robot.speed(0)
         mure.speed(0)
+        punto.speed(0)
+
+        # On fait un cadrillage pour les positions de points
+
+        punto.penup()
+        punto.pencolor('black')
+        punto.fillcolor('black')
+        punto.backward(55)
+        punto.left(90)
+        punto.backward(280)
+
+        for i in range(1, 10):
+            for j in range (1, 10):
+                x = (5 - i)*68 - 5
+                y = (j - 1)*68 + 10
+                punto.forward(y)
+                punto.left(90)
+                punto.forward(x)
+                punto.dot(5)
+                punto.backward(x)
+                punto.right(90)
+                punto.backward(y)
 
 
         # On trace les bords du plateau
