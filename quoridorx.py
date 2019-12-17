@@ -19,6 +19,13 @@ class QuoridorX(Quoridor):
     """
     def __init__(self, joueurs, murs=None):
         super().__init__(joueurs, murs)
+
+
+    def afficher(self):
+        """
+        Fonction pour afficher le jeu en mode graphique
+        """
+
         # On crée la fenêtre
         self.fen = turtle.Screen()
         self.fen.title("Jeu Quoridor")
@@ -117,12 +124,6 @@ class QuoridorX(Quoridor):
         self.robot.backward(55)
         self.robot.left(90)
         self.robot.forward(290)
-
-
-    def afficher(self):
-        """
-        Fonction pour afficher le jeu en mode graphique
-        """
         
         # On place le pion du joueur 1 en fonction des coordonées
         x = (5 - self.etat["joueurs"][0]["pos"][0])*68 - 5
@@ -192,7 +193,21 @@ class QuoridorX(Quoridor):
         self.mure.backward(10)
 
         # On demande à l'utilisateur son prochain coup
-        self.coup = self.fen.textinput("Vos coups", "Entrez votre type coups:")
+        coup_invalide = True
+        while coup_invalide:
+            self.coup = self.fen.textinput("Vos coups", "Entrez votre type coups:")
+            if self.coup in ["q", "Q"]:
+                break
+            print(self.coup)
+            try:
+                self.coup = self.coup.split(" ")
+                if self.coup[0] not in ("D", "MH", "MV"):
+                    raise ValueError
+                self.coup = self.coup[0], [int(self.coup[1]), int(self.coup[2])]
+                coup_invalide = False
+            except:
+                print("Mauvaise entrée. Réessayez")
+                coup_invalide = True
         self.fen.clear()
 
 

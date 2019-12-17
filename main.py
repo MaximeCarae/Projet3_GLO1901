@@ -61,10 +61,7 @@ class Partie:
         """
         # Fonction qui analyse les entrées de la ligne de commande
         def parse_move():
-            if self.fenetre:
-                string = self.partie.coup
-            else:
-                string = input("Entrez votre coup ")
+            string = input("Entrez votre coup ")
             if string in ("q", "Q"):
                 return "q"
             if string in ("a", "A"):
@@ -75,6 +72,8 @@ class Partie:
                 return parse_move()
             try:
                 string = string.split(" ")
+                if string[0] not in ("D", "MH", "MV"):
+                    raise ValueError
                 return string[0], [int(string[1]), int(string[2])]
             except:
                 print("Mauvaise entrée. Réessayez")
@@ -86,7 +85,10 @@ class Partie:
 
             # Si mode pas automatique: Analyser les entrées de la ligne de commande
             if not self.auto:
-                arg_coup = parse_move()
+                if not self.fenetre:
+                    arg_coup = parse_move()
+                else:
+                    arg_coup = self.partie.coup
                 if arg_coup == "q":
                     return None
             # Si mode automatique: caller jouer_coup pour le joueur 1
