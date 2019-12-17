@@ -188,10 +188,9 @@ class QuoridorX(Quoridor):
         mure.backward(10)
 
         # On demande à l'utilisateur son prochain coup
-        #prochaincoup = fen.textinput("Vos coups", "Entrez votre coups:")
-        #fen.clear()
+        prochaincoup = fen.textinput("Vos coups", "Entrez votre type coups:")
+        fen.clear()
 
-        #return prochaincoup
-
+        return prochaincoup
 
 
