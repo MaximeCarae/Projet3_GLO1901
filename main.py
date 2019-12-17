@@ -61,7 +61,10 @@ class Partie:
         """
         # Fonction qui analyse les entrées de la ligne de commande
         def parse_move():
-            string = input("Entrez votre coup ")
+            if self.fenetre:
+                string = self.partie.coup
+            else:
+                string = input("Entrez votre coup ")
             if string in ("q", "Q"):
                 return "q"
             if string in ("a", "A"):
@@ -79,7 +82,7 @@ class Partie:
 
         while(True):
             # Afficher l'état de jeu (graphique ou ASCII, selon self.fenetre)
-            arg_coup = self.afficher_partie()
+            self.afficher_partie()
 
             # Si mode pas automatique: Analyser les entrées de la ligne de commande
             if not self.auto:
@@ -89,7 +92,6 @@ class Partie:
             # Si mode automatique: caller jouer_coup pour le joueur 1
             else:
                 arg_coup =  self.partie.jouer_coup(1)
-                
 
             # Update l'état de jeu pour rester synchronisé avec l'état de jeu du serveur 
             try:
@@ -97,7 +99,6 @@ class Partie:
                 # Le serveur renvoie les positions des personnages en listes et non tuples -> conversion en tuple
                 for i in range(2):
                     self.partie.etat["joueurs"][i]["pos"] = tuple(self.partie.etat["joueurs"][i]["pos"])
-
 
             # Exception si joueur est gagnant
             except StopIteration as stop_iter:
