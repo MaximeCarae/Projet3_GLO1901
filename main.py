@@ -1,7 +1,6 @@
 import argparse
 import api
-import time
-import quoridorx
+from quoridorx import QuoridorX
 
 
 def analyser_commande():
@@ -50,7 +49,7 @@ class Partie:
     # Initialise une partie
     def jouer_partie(self):
         self.id, self.etat = api.débuter_partie(self.idul)
-        self.partie = quoridorx.QuoridorX(["auto", "serveur"])
+        self.partie = QuoridorX(["auto", "serveur"])
         self.jouer_tour()
     
     
