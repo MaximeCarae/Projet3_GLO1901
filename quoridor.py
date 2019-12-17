@@ -255,7 +255,6 @@ class Quoridor:
 
         partie1 = Quoridor(deepcopy(etat["joueurs"]), deepcopy(etat["murs"]))
         partie2 = Quoridor(deepcopy(etat["joueurs"]), deepcopy(etat["murs"]))
-        partie3 = Quoridor(deepcopy(etat["joueurs"]), deepcopy(etat["murs"]))
 
         # Construction du graphe de la partie            
         graphe = construire_graphe(
@@ -281,26 +280,20 @@ class Quoridor:
             alpha = max(alpha, minMax(partie1, False))
 
             # S'il reste des murs au joueur: placer un mur dans face de l'adversaire  
-            # Mur horizontal                
+       
             if partie2.etat["joueurs"][0]["murs"]:
-                mur = partie2.placer_mur_auto(1, partie2.etat["joueurs"][1]["pos"], "horizontal")
+                temp = nx.shortest_path(graphe,
+                                               (partie2.etat["joueurs"][1]["pos"][0],
+                                                partie2.etat["joueurs"][1]["pos"][1]),
+                                               'B2')[1]
+                if temp[1] == partie2.etat["joueurs"][1]["pos"][1]:
+                    type_mur, mur = "MV", partie2.placer_mur_auto(1, temp, "vertical")
+                else:
+                    type_mur, mur = "MH", partie2.placer_mur_auto(1, partie2.etat["joueurs"][1]["pos"], "horizontal")
                 if mur:
                     if alpha > minMax(partie2, False):
-                        move = "MH", mur
+                        move = type_mur, mur
 
-            # Mur vertical s'il reste des murs
-
-            if partie3.etat["joueurs"][0]["murs"] and nx.shortest_path(graphe,
-                                               (partie3.etat["joueurs"][1]["pos"][0],
-                                                partie3.etat["joueurs"][1]["pos"][1]),
-                                               'B2')[1][1] == partie3.etat["joueurs"][1]["pos"][1]:
-                mur = partie3.placer_mur_auto(1, partie3.etat["joueurs"][1]["pos"], "vertical")
-                if mur:
-                    if alpha > minMax(partie3, False):
-                        move = "MV", mur
-
-                        
-            
         else:
             beta = 1000
 
@@ -315,22 +308,17 @@ class Quoridor:
             # S'il reste des murs au joueur: placer un mur dans face de l'adversaire  
             # Mur horizontal                
             if partie2.etat["joueurs"][1]["murs"]:
-                mur = partie2.placer_mur_auto(2, partie2.etat["joueurs"][0]["pos"], "horizontal")
+                temp = nx.shortest_path(graphe,
+                                               (partie2.etat["joueurs"][0]["pos"][0],
+                                                partie2.etat["joueurs"][0]["pos"][1]),
+                                               'B1')[1]
+                if temp[1] == partie2.etat["joueurs"][0]["pos"][1]:
+                    type_mur, mur = "MV", partie2.placer_mur_auto(2, partie2.etat["joueurs"][0]["pos"], "vertical")
+                else:
+                    type_mur, mur = "MH", partie2.placer_mur_auto(2, temp, "horizontal")
                 if mur:
                     if beta < minMax(partie2, True):
-                        move = "MH", mur
-
-            # Mur vertical s'il reste des murs
-
-            if partie3.etat["joueurs"][1]["murs"] and nx.shortest_path(graphe,
-                                               (partie3.etat["joueurs"][0]["pos"][0],
-                                                partie3.etat["joueurs"][0]["pos"][1]),
-                                               'B1')[1][1] == partie3.etat["joueurs"][0]["pos"][1]:
-                mur = partie3.placer_mur_auto(2, partie3.etat["joueurs"][0]["pos"], "vertical")
-                if mur:
-                    if beta < minMax(partie3, True):
-                        move = "MV", mur
-
+                        move = type_mur, mur
         return move
         
             
@@ -452,40 +440,36 @@ class Quoridor:
         if joueur == 1:
             #biaisXY = 0
             #biaisYX = -1
-            biaisXY = 0
+            biaisXY = 1
             biaisYX = -1
+            #biaisXY = 0
+            #biaisYX = -1
 
         else:
             #biaisXY = 1
             #biaisYX = 0
-            biaisXY = 1
+            biaisXY = 0
             biaisYX = 0
+            #biaisXY = 2
+            #biaisYX = 0
         
         if type_mur == "horizontal":
-            if x > 5:
-                for i in [x, x + 1, x - 1]:
-                    try:
-                        self.placer_mur(joueur, (i, y + biaisXY), type_mur)
-                        return i, y + biaisXY
-                    except:
-                        continue
-            else:
-                for i in [x, x - 1, x + 1]:
-                    try:
-                        self.placer_mur(joueur, (i, y + biaisXY), type_mur)
-                        return i, y + biaisXY
-                    except:
-                        continue
+            for i in [x, x - 1]:
+                try:
+                    self.placer_mur(joueur, (i, y + biaisXY), type_mur)
+                    return i, y + biaisXY
+                except:
+                    continue
         else:
             if x > 5:
-               for i in [x, x + 1]:
+               for i in [x + 1, x]:
                     try:
                         self.placer_mur(joueur, (i, y + biaisYX), type_mur)
                         return i, y + biaisYX
                     except:
                         continue
             else:
-                for i in [x + 1, x]:
+                for i in [x, x + 1]:
                     try:
                         self.placer_mur(joueur, (i, y + biaisYX), type_mur)
                         return i, y + biaisYX
@@ -587,17 +571,17 @@ def construire_graphe(joueurs, murs_horizontaux, murs_verticaux):
 
 
 
-def minMax(partie, joueurMax, n = 5, verbose = False):
+def minMax(partie, joueurMax, n = 10, verbose = False):
 
         #biais = 100
         #biaisMur = 250
-        #biais = 0
-        #biaisMur = 0
+        biais = 40
+        biaisMur = 80
 
         etat = deepcopy(partie.état_partie())
 
         if etat["joueurs"][0]["pos"][1] == 9:
-            return 10000
+            return 100000
         elif etat["joueurs"][1]["pos"][1] == 1:
             return -10000
 
@@ -617,10 +601,9 @@ def minMax(partie, joueurMax, n = 5, verbose = False):
         # Conditions limites: Le joueur 1 ou 2 remporte la partie: +- 50 de valeur au noeud
         partie1 = Quoridor(deepcopy(etat["joueurs"]), deepcopy(etat["murs"]))
         partie2 = Quoridor(deepcopy(etat["joueurs"]), deepcopy(etat["murs"]))
-        partie3 = Quoridor(deepcopy(etat["joueurs"]), deepcopy(etat["murs"]))
 
         # 3 choix de jeu considérés à chaque noeud: Partir par le chemin le plus court pour gagner, ou placer
-        # un mur horizontal devant l'adversaire ou un mur vertical à côté de lui
+        # un mur horizontal ou un mur vertical dans le chemin le plus court de l'adversaire
         if joueurMax:
             alpha = -10000
 
@@ -634,27 +617,20 @@ def minMax(partie, joueurMax, n = 5, verbose = False):
             alpha = max(alpha, minMax(partie1, False, n - 1)) + biais
 
             # Cas 2
-            # S'il reste des murs au joueur: placer un mur dans face de l'adversaire  
-            # Mur horizontal                
+            # S'il reste des murs au joueur: placer un mur dans face de l'adversaire                
             if partie2.etat["joueurs"][0]["murs"]:
-                mur = partie2.placer_mur_auto(1, partie2.etat["joueurs"][1]["pos"], "horizontal")
+                temp = nx.shortest_path(graphe,
+                                               (partie2.etat["joueurs"][1]["pos"][0],
+                                                partie2.etat["joueurs"][1]["pos"][1]),
+                                               'B2')[1]
+                if temp[1] == partie2.etat["joueurs"][1]["pos"][1]:
+                    mur = partie2.placer_mur_auto(1, partie2.etat["joueurs"][1]["pos"], "vertical")
+                else:
+                    mur = partie2.placer_mur_auto(1, temp, "horizontal")
                 if mur:
                     if verbose:
                         print("-----------------------------------------\nCas 2: Joueur Max", partie2.etat, n)
                     alpha = max(alpha, minMax(partie2, False, n - 1)) + biaisMur
-
-            # Mur vertical s'il reste des murs et que le chemin le plus court pour l'autre joueur est un déplacement vertical
-        
-            if partie3.etat["joueurs"][0]["murs"] and nx.shortest_path(graphe,
-                                               (partie3.etat["joueurs"][1]["pos"][0],
-                                                partie3.etat["joueurs"][1]["pos"][1]),
-                                               'B2')[1][1] == partie3.etat["joueurs"][1]["pos"][1]:
-                mur = partie3.placer_mur_auto(1, partie3.etat["joueurs"][1]["pos"], "vertical")
-                if mur:
-                    if verbose:
-                        print("-----------------------------------------\nCas 3: Joueur Max", partie3.etat, n)
-                    alpha = max(alpha, minMax(partie3, False, n - 1))
-                
 
             return alpha
         else:
@@ -674,22 +650,17 @@ def minMax(partie, joueurMax, n = 5, verbose = False):
             # Mur horizontal
 
             if partie2.etat["joueurs"][1]["murs"]:
-                mur = partie2.placer_mur_auto(2, partie2.etat["joueurs"][0]["pos"], "horizontal")
+                temp = nx.shortest_path(graphe,
+                                               (partie2.etat["joueurs"][0]["pos"][0],
+                                                partie2.etat["joueurs"][0]["pos"][1]),
+                                               'B1')[1]
+                if temp[1] == partie2.etat["joueurs"][0]["pos"][1]:
+                    mur = partie2.placer_mur_auto(2, partie2.etat["joueurs"][0]["pos"], "vertical")
+                else:
+                    mur = partie2.placer_mur_auto(2, temp, "horizontal")
                 if mur:
                     if verbose:
                         print("-----------------------------------------\nCas 2: Joueur Min", partie2.etat, n)
                     beta = min(beta, minMax(partie2, True, n - 1)) - biaisMur
-
-            # Mur vertical s'il reste des murs
-
-            if partie3.etat["joueurs"][1]["murs"] and nx.shortest_path(graphe,
-                                               (partie3.etat["joueurs"][0]["pos"][0],
-                                                partie3.etat["joueurs"][0]["pos"][1]),
-                                               'B1')[1][1] == partie3.etat["joueurs"][0]["pos"][1]:
-                mur = partie3.placer_mur_auto(2, partie3.etat["joueurs"][0]["pos"], "vertical")
-                if mur:
-                    if verbose:
-                        print("-----------------------------------------\nCas 3: Joueur Max", partie3.etat, n)
-                    beta = min(beta, minMax(partie3, True, n - 1))
 
             return beta

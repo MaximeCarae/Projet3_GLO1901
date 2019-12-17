@@ -8,11 +8,11 @@ Ce programme contient la classe avec toutes
 les méthodes pour jouer au jeu Quoridor en graphique
 """
 
-import quoridor
+from quoridor import Quoridor
 import turtle
 
 
-class QuoridorX(quoridor.Quoridor):
+class QuoridorX(Quoridor):
     """
     Classe Quoridor, contient toutes les fonctions nécéssaires pour
     jouer au jeu Quoridor en mode graphique.
@@ -188,10 +188,10 @@ class QuoridorX(quoridor.Quoridor):
         mure.backward(10)
 
         # On demande à l'utilisateur son prochain coup
-        prochaincoup = fen.textinput("Vos coups", "Entrez votre coups:")
-        fen.clear()
+        #prochaincoup = fen.textinput("Vos coups", "Entrez votre coups:")
+        #fen.clear()
 
-        return prochaincoup
+        #return prochaincoup
 
 
 
